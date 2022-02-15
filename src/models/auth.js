@@ -14,7 +14,7 @@ const register = (body) => {
       if (result.length >= 1)
         return reject({
           status: 400,
-          result: {msg: 'Email is already registered', data: null},
+          err: {msg: 'Email is already registered', data: null},
         });
 
       const sqlQuery = 'INSERT INTO user SET ?';
@@ -23,17 +23,18 @@ const register = (body) => {
         .then((hashedPassword) => {
           const newBody = {
             ...body,
-            roles: 2,
             password: hashedPassword,
           };
           db.query(sqlQuery, [newBody], (err, result) => {
-            if (err) return reject({status: 500, err});
+            if (err)
+              return reject({status: 500, err: {msg: 'Something went wrong'}});
             return resolve({
               status: 201,
               result: {
                 msg: 'Registration Success',
-                result: {
+                data: {
                   id: result.insertId,
+                  roles: newBody.roles,
                   email: newBody.email,
                 },
               },
@@ -41,7 +42,7 @@ const register = (body) => {
           });
         })
         .catch((err) => {
-          reject({status: 500, err});
+          reject({status: 500, err: {msg: 'Something went wrong'}});
         });
     });
   });
@@ -49,7 +50,7 @@ const register = (body) => {
 
 const login = (body) => {
   return new Promise((resolve, reject) => {
-    const {email, password} = body;
+    const {email, password, rememberMe} = body;
     const sqlQuery = 'SELECT * FROM user WHERE ?';
 
     db.query(sqlQuery, [{email}], async (err, result) => {
@@ -57,7 +58,7 @@ const login = (body) => {
       if (result.length == 0)
         return reject({
           status: 401,
-          result: {msg: 'Invalid Email/Password'},
+          result: {msg: 'Invalid Email/Password', data: null},
         });
 
       try {
@@ -68,8 +69,9 @@ const login = (body) => {
             id: result[0].id,
             roles: result[0].roles,
           };
+          let expiresIn = rememberMe === 'true' ? '2d' : '2h';
           const jwtOptions = {
-            expiresIn: '2h',
+            expiresIn,
             issuer: process.env.ISSUER,
           };
           jwt.sign(
@@ -80,7 +82,7 @@ const login = (body) => {
               if (err)
                 return reject({
                   status: 500,
-                  result: {msg: 'Login Failed', data: null},
+                  err: {msg: 'Login Failed', data: null},
                 });
               const data = {
                 token,
@@ -93,13 +95,13 @@ const login = (body) => {
         } else {
           reject({
             status: 401,
-            result: {msg: 'Invalid Email/Password', data: null},
+            err: {msg: 'Invalid Email/Password', data: null},
           });
         }
       } catch (err) {
         reject({
           status: 500,
-          result: {msg: 'Login Failed', data: null},
+          err: {msg: 'Login Failed', data: null},
         });
       }
     });
@@ -116,7 +118,7 @@ const forgotPassword = (body) => {
       if (result.length == 0)
         return reject({
           status: 401,
-          result: {errMsg: 'Invalid Email'},
+          err: {msg: 'Invalid Email'},
         });
 
       const otp = Math.ceil(Math.random() * 1000000);
@@ -124,11 +126,11 @@ const forgotPassword = (body) => {
 
       const sqlQuery = `UPDATE user SET otp = ? WHERE email = ?`;
       db.query(sqlQuery, [otp, email], (err) => {
-        if (err) return reject({status: 500, err});
+        if (err)
+          return reject({status: 500, err: {msg: 'Something went wrong'}});
         const data = {
           email: email,
         };
-
         resolve({status: 200, result: data});
       });
     });
@@ -142,7 +144,8 @@ const checkOTP = (body) => {
 
     db.query(sqlQuery, [email, otp], (err, result) => {
       if (err) return reject({status: 500, err});
-      if (result.length === 0) return reject({status: 401, err: 'Invalid OTP'});
+      if (result.length === 0)
+        return reject({status: 401, err: {msg: 'Invalid OTP'}});
       const data = {
         email: email,
       };
@@ -164,11 +167,16 @@ const resetPassword = (body) => {
         .hash(password, 10)
         .then((hashedPassword) => {
           db.query(sqlUpdatePass, [hashedPassword, email, otp], (err) => {
-            if (err) return reject({status: 500, err});
-
+            if (err)
+              return reject({status: 500, err: {msg: 'Something went wrong'}});
+            D;
             const sqlUpdateOTP = `UPDATE user SET otp = null WHERE email = ?`;
             db.query(sqlUpdateOTP, [email], (err, result) => {
-              if (err) return reject({status: 500, err});
+              if (err)
+                return reject({
+                  status: 500,
+                  err: {msg: 'Something went wrong'},
+                });
               resolve({status: 201, result});
             });
           });
@@ -186,7 +194,10 @@ const logout = (token) => {
 
     db.query(sqlQuery, [token], (err, result) => {
       if (err)
-        return reject({status: 500, result: {msg: 'Logout Failed', data: null}});
+        return reject({
+          status: 500,
+          err: {msg: 'Logout Failed', data: null},
+        });
       resolve({status: 200, result: {msg: 'Logout Success', data: null}});
     });
   });

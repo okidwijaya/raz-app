@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const authRouter = require('./auth');
-// const homeRouter = require('./home');
+const productsRouter = require('./products');
 // const userRouter = require('./user');
 // const testimonyRouter = require('./testimony');
 // const historyRouter = require('./history');
@@ -11,7 +11,7 @@ const authRouter = require('./auth');
 // const cityRouter = require('./city');
 
 router.use('/auth', authRouter);
-// router.use('/home', homeRouter);
+router.use('/products', productsRouter);
 // router.use('/user', userRouter);
 // router.use('/testimony', testimonyRouter);
 // router.use('/history', historyRouter);

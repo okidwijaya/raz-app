@@ -10,10 +10,10 @@ const success = (res, status, result) => {
 
 const error = (res, status, err) => {
   console.log(err);
-  const data = err.result.data || null;
+  const data = err.data || null;
   const results = {
     status,
-    msg: err.result.msg,
+    msg: err.msg,
     data: data,
   };
   return res.status(status).json(results);
