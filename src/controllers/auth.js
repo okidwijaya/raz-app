@@ -9,8 +9,8 @@ const register = (req, res) => {
     .then(({status, result}) => {
       return resHelper.success(res, status, result);
     })
-    .catch((err) => {
-      resHelper.error(res, 500, err);
+    .catch(({status, err}) => {
+      resHelper.error(res, status, err);
     });
 };
 
@@ -21,8 +21,8 @@ const login = (req, res) => {
     .then(({status, result}) => {
       resHelper.success(res, status, result);
     })
-    .catch((err) => {
-      resHelper.error(res, 500, err);
+    .catch(({status, err}) => {
+      resHelper.error(res, status, err);
     });
 };
 
@@ -33,8 +33,8 @@ const logout = (req, res) => {
     .then(({status, result}) => {
       return resHelper.success(res, status, result);
     })
-    .catch((err) => {
-      resHelper.error(res, 500, {data: err});
+    .catch(({status, err}) => {
+      resHelper.error(res, status, err);
     });
 };
 

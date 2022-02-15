@@ -28,7 +28,7 @@ const checkToken = (req, res, next) => {
   });
 };
 
-const authorizeAdmin = (req, res, next) => {
+const authorizeOwner = (req, res, next) => {
   const {roles} = req.userInfo;
   console.log('roles:', roles);
   if (roles === '1') {
@@ -36,7 +36,7 @@ const authorizeAdmin = (req, res, next) => {
   }
   res.status(403).json({
     status: 403,
-    msg: 'You need to login as Admin to perform this action.',
+    msg: 'You need to login as Owner to perform this action.',
     data: null,
   });
 };
@@ -56,6 +56,6 @@ const authorizeCustomer = (req, res, next) => {
 
 module.exports = {
   checkToken,
-  authorizeAdmin,
+  authorizeOwner,
   authorizeCustomer,
 };
