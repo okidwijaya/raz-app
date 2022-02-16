@@ -163,7 +163,9 @@ const searchProducts = (query) => {
         totalData,
       };
 
-      const sqlSearchProducts = `SELECT DISTINCT p.id, p.name, p.price FROM product p  
+      const sqlSearchProducts = `SELECT DISTINCT p.id, p.name, p.price,
+      (SELECT image FROM image_product WHERE idProduct = p.id LIMIT 1) as image
+      FROM product p 
       JOIN brands b ON p.idBrand = b.id 
       JOIN category_product cp ON cp.idProduct = p.id 
       JOIN category c ON c.id = cp.idCategory
@@ -173,6 +175,7 @@ const searchProducts = (query) => {
       ORDER BY ? ? LIMIT ? OFFSET ? `;
       db.query(sqlSearchProducts, prepare, (err, result) => {
         if (err) {
+          console.log(err);
           return reject({
             status: 500,
             err: {msg: 'Something went wrong', data: null},
