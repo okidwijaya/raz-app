@@ -2,14 +2,13 @@ const responseHelper = require('../helpers/sendResponse');
 
 const register = (req, res, next) => {
   const {body} = req;
-  const registerBody = ['email', 'password'];
+  const registerBody = ['email', 'password', 'roles'];
   const bodyProperty = Object.keys(body);
   const isBodyValid =
     registerBody.filter((property) => !bodyProperty.includes(property))
       .length == 0
       ? true
       : false;
-
   if (!isBodyValid)
     return responseHelper.error(res, 400, {msg: 'Invalid Request', data: null});
   next();

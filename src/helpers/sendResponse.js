@@ -1,9 +1,11 @@
 const success = (res, status, result) => {
   const data = result.data || null;
+  // const meta = result.meta || null;
   const results = {
     status,
     msg: result.msg,
     data: data,
+    meta: result.meta,
   };
   return res.status(status).json(results);
 };
