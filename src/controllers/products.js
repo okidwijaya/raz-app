@@ -14,4 +14,15 @@ const getDetailByID = (req, res) => {
       return resHelper.error(res, status, err);
     });
 };
-module.exports = {getDetailByID, addProducts};
+const searchProducts = (req, res) => {
+  const {query} = req;
+  productsModel
+    .searchProducts(query)
+    .then(({status, result}) => {
+      return resHelper.success(res, status, result);
+    })
+    .catch(({status, err}) => {
+      return resHelper.error(res, status, err);
+    });
+};
+module.exports = {getDetailByID, addProducts, searchProducts};

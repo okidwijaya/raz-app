@@ -11,5 +11,6 @@ const productsController = require('../controllers/products');
 //   productsController.addProducts,
 // );
 productsRouter.get('/detail/:id', productsController.getDetailByID);
+productsRouter.get('/search', productsController.searchProducts);
 
 module.exports = productsRouter;

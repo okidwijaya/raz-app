@@ -3,20 +3,20 @@ const router = express.Router();
 
 const authRouter = require('./auth');
 const productsRouter = require('./products');
-// const userRouter = require('./user');
+const categoryRouter = require('./category');
+const brandRouter = require('./brand');
 // const testimonyRouter = require('./testimony');
 // const historyRouter = require('./history');
 // const vehiclesRouter = require('./vehicles');
-// const categoryRouter = require('./category');
 // const cityRouter = require('./city');
 
 router.use('/auth', authRouter);
 router.use('/products', productsRouter);
-// router.use('/user', userRouter);
+router.use('/category', categoryRouter);
+router.use('/brand', brandRouter);
 // router.use('/testimony', testimonyRouter);
 // router.use('/history', historyRouter);
 // router.use('/vehicles', vehiclesRouter);
-// router.use('/category', categoryRouter);
 // router.use('/city', cityRouter);
 
 // router.get('/', (_req, res) => {
