@@ -1,7 +1,6 @@
 const db = require('../config/db');
 const mysql = require('mysql');
 const {getTimeStamp} = require('../helpers/getTimeStamp');
-const {compareSync} = require('bcrypt');
 
 const addProduct = (req) => {
   return new Promise((resolve, reject) => {
@@ -65,8 +64,8 @@ const addProduct = (req) => {
           prepareCategory.push(idProduct, element);
           console.log(element);
         });
-        const addImagesProduct = `INSERT INTO category_product (idProduct, idCategory) ${values}`;
-        db.query(addImagesProduct, prepareCategory, (err, result) => {
+        const addCategoryProduct = `INSERT INTO category_product (idProduct, idCategory) ${valuesCategory}`;
+        db.query(addCategoryProduct, prepareCategory, (err, result) => {
           if (err) {
             console.log('err product', err);
             return reject({
@@ -195,15 +194,8 @@ const searchProducts = (query) => {
     }
 
     let sqlPrice = 'p.price IS NOT NULL';
-
-    let sqlPriceMin = '';
-
-    let sqlPriceMax = '';
-
     if (priceMin && priceMax) {
       sqlPrice = `p.price BETWEEN ${priceMin} AND ${priceMax}`;
-      sqlPriceMin = priceMin;
-      sqlPriceMax = priceMax;
     }
 
     const sqlLimit = limit ? limit : '12';
