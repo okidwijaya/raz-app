@@ -21,12 +21,9 @@ const addProduct = (req) => {
       ...{createdAt},
     };
     delete newBody.category;
-    console.log(categories, newBody);
     const sqlAddProduct = `INSERT INTO product SET ?`;
     db.query(sqlAddProduct, newBody, (err, result) => {
-      console.log(err);
       if (err) {
-        console.log('err add product', err);
         return reject({
           status: 500,
           err: {msg: 'Something went wrong', data: null},
@@ -42,12 +39,10 @@ const addProduct = (req) => {
           values += ` (?,?) `;
         }
         prepareImages.push(idProduct, element);
-        console.log(element);
       });
       const addImagesProduct = `INSERT INTO image_product (idProduct, image) ${values}`;
       db.query(addImagesProduct, prepareImages, (err, result) => {
         if (err) {
-          console.log('err image', err);
           return reject({
             status: 500,
             err: {msg: 'Something went wrong', data: null},
@@ -62,12 +57,10 @@ const addProduct = (req) => {
             valuesCategory += ` (?,?) `;
           }
           prepareCategory.push(idProduct, element);
-          console.log(element);
         });
         const addCategoryProduct = `INSERT INTO category_product (idProduct, idCategory) ${valuesCategory}`;
         db.query(addCategoryProduct, prepareCategory, (err, result) => {
           if (err) {
-            console.log('err product', err);
             return reject({
               status: 500,
               err: {msg: 'Something went wrong', data: null},
@@ -158,7 +151,7 @@ const searchProducts = (query) => {
       page,
       limit,
     } = query;
-
+    
     const sqlSearch =
       search && search !== ''
         ? `p.name LIKE '%${search}%'`
@@ -166,12 +159,41 @@ const searchProducts = (query) => {
     const sqlIdCategory = idCategory
       ? `cp.idCategory = ${idCategory}`
       : 'cp.idCategory IS NOT NULL';
-    const sqlIdBrand = idBrand ? `b.id = ${idBrand}` : 'b.id IS NOT NULL';
-    const sqlColor =
-      color === 'all' || !color
-        ? 'p.color IS NOT NULL'
-        : `p.color = '${color}'`;
 
+    let sqlColor = 'p.color IS NOT NULL';
+    if (color && typeof color === 'string' && color !== '') {
+      sqlColor = `p.color = '${color}'`;
+    }
+
+    if (Array.isArray(color)) {
+      sqlColor = 'p.color IN (';
+      for (let i = 0; i < color.length; i++) {
+        if (i === color.length - 1) {
+          sqlColor += `'${color[i]}'`;
+        } else {
+          sqlColor += `'${color[i]}', `;
+        }
+      }
+      sqlColor += ')';
+    }
+
+    let sqlIdBrand = 'b.id IS NOT NULL';
+    if (idBrand && typeof idBrand === 'string' && idBrand !== '') {
+      sqlIdBrand = `b.id = '${idBrand}'`;
+    }
+    if (Array.isArray(idBrand)) {
+      sqlIdBrand = 'b.id IN (';
+      for (let i = 0; i < idBrand.length; i++) {
+        if (i === idBrand.length - 1) {
+          sqlIdBrand += `${idBrand[i]}`;
+        } else {
+          sqlIdBrand += `${idBrand[i]}, `;
+        }
+      }
+      sqlIdBrand += ')';
+    }
+
+    console.log(sqlIdBrand);
     let sqlSort = 'p.createdAt';
     let sqlOrder = 'DESC';
     if (sort) {
@@ -224,6 +246,7 @@ const searchProducts = (query) => {
 
     db.query(sqlCount, prepare, (err, result) => {
       if (err) {
+        console.log(err);
         return reject({
           status: 500,
           err: {msg: 'Something went wrong', data: null},
