@@ -27,6 +27,7 @@ const addProduct = (req) => {
     db.query(sqlAddProduct, newBody, (err, result) => {
       console.log(err);
       if (err) {
+        console.log('err add product', err);
         return reject({
           status: 500,
           err: {msg: 'Something went wrong', data: null},
@@ -47,6 +48,7 @@ const addProduct = (req) => {
       const addImagesProduct = `INSERT INTO image_product (idProduct, image) ${values}`;
       db.query(addImagesProduct, prepareImages, (err, result) => {
         if (err) {
+          console.log('err image', err);
           return reject({
             status: 500,
             err: {msg: 'Something went wrong', data: null},
@@ -55,7 +57,7 @@ const addProduct = (req) => {
         let valuesCategory = 'VALUES';
         const prepareCategory = [];
         categories.forEach((element, index) => {
-          if (index !== images.length - 1) {
+          if (index !== categories.length - 1) {
             valuesCategory += ` (?,?), `;
           } else {
             valuesCategory += ` (?,?) `;
@@ -64,8 +66,9 @@ const addProduct = (req) => {
           console.log(element);
         });
         const addImagesProduct = `INSERT INTO category_product (idProduct, idCategory) ${values}`;
-        db.query(addImagesProduct, prepareImages, (err, result) => {
+        db.query(addImagesProduct, prepareCategory, (err, result) => {
           if (err) {
+            console.log('err product', err);
             return reject({
               status: 500,
               err: {msg: 'Something went wrong', data: null},
