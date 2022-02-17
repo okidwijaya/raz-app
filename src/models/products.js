@@ -1,6 +1,88 @@
 const db = require('../config/db');
 const mysql = require('mysql');
-const getTimeStamp = require('../helpers/getTimeStamp');
+const {getTimeStamp} = require('../helpers/getTimeStamp');
+const {compareSync} = require('bcrypt');
+
+const addProduct = (req) => {
+  return new Promise((resolve, reject) => {
+    const {body, userInfo} = req;
+    const images = req.images;
+    if (images.length === 0) {
+      return reject({
+        status: 400,
+        err: {msg: `Image can't be empty`, data: null},
+      });
+    }
+    const idUser = userInfo.id;
+    const createdAt = getTimeStamp();
+    const categories = JSON.parse(body.category);
+    const newBody = {
+      ...body,
+      ...{idUser},
+      ...{createdAt},
+    };
+    delete newBody.category;
+    console.log(categories, newBody);
+    const sqlAddProduct = `INSERT INTO product SET ?`;
+    db.query(sqlAddProduct, newBody, (err, result) => {
+      console.log(err);
+      if (err) {
+        return reject({
+          status: 500,
+          err: {msg: 'Something went wrong', data: null},
+        });
+      }
+      const idProduct = result.insertId;
+      let values = `VALUES`;
+      const prepareImages = [];
+      images.forEach((element, index) => {
+        if (index !== images.length - 1) {
+          values += ` (?,?), `;
+        } else {
+          values += ` (?,?) `;
+        }
+        prepareImages.push(idProduct, element);
+        console.log(element);
+      });
+      const addImagesProduct = `INSERT INTO image_product (idProduct, image) ${values}`;
+      db.query(addImagesProduct, prepareImages, (err, result) => {
+        if (err) {
+          return reject({
+            status: 500,
+            err: {msg: 'Something went wrong', data: null},
+          });
+        }
+        let valuesCategory = 'VALUES';
+        const prepareCategory = [];
+        categories.forEach((element, index) => {
+          if (index !== images.length - 1) {
+            valuesCategory += ` (?,?), `;
+          } else {
+            valuesCategory += ` (?,?) `;
+          }
+          prepareCategory.push(idProduct, element);
+          console.log(element);
+        });
+        const addImagesProduct = `INSERT INTO category_product (idProduct, idCategory) ${values}`;
+        db.query(addImagesProduct, prepareImages, (err, result) => {
+          if (err) {
+            return reject({
+              status: 500,
+              err: {msg: 'Something went wrong', data: null},
+            });
+          }
+          return resolve({
+            status: 200,
+            result: {
+              msg: `A New Product Added`,
+              data: {...{id: idProduct}, ...newBody, categories, images},
+            },
+          });
+        });
+      });
+    });
+  });
+};
 
 const getDetailByID = (id) => {
   return new Promise((resolve, reject) => {
@@ -142,7 +224,7 @@ const searchProducts = (query) => {
     JOIN category_product cp ON cp.idProduct = p.id 
     JOIN category c ON c.id = cp.idCategory
     LEFT JOIN transaction_product tp ON tp.idProduct = p.id
-    WHERE   ? AND ? AND ? AND ? AND ? 
+    WHERE   ? AND ? AND ? AND ? AND ? AND p.deletedAt IS NULL
     ORDER BY ? ?`;
 
     db.query(sqlCount, prepare, (err, result) => {
@@ -170,7 +252,7 @@ const searchProducts = (query) => {
       JOIN category_product cp ON cp.idProduct = p.id 
       JOIN category c ON c.id = cp.idCategory
       LEFT JOIN transaction_product tp ON tp.idProduct = p.id
-      WHERE   ? AND ? AND ? AND ? AND ? 
+      WHERE   ? AND ? AND ? AND ? AND ? AND p.deletedAt IS NULL
       GROUP BY p.id
       ORDER BY ? ? LIMIT ? OFFSET ? `;
       db.query(sqlSearchProducts, prepare, (err, result) => {
@@ -194,7 +276,38 @@ const searchProducts = (query) => {
   });
 };
 
+const deleteProduct = (idProduct, idUser) => {
+  return new Promise((resolve, reject) => {
+    console.log('model');
+    const timestamp = getTimeStamp();
+    console.log('timestamp', timestamp);
+    const sqlDeleteProduct = `UPDATE product SET deletedAt = ? WHERE idUser = ? AND id = ?`;
+    db.query(
+      sqlDeleteProduct,
+      [timestamp, idUser, parseInt(idProduct)],
+      (err, result) => {
+        if (err) {
+          console.log(err);
+          return reject({
+            status: 500,
+            err: {msg: 'Something went wrong', data: null},
+          });
+        }
+        return resolve({
+          status: 200,
+          result: {
+            msg: `Product Deleted`,
+            data: null,
+          },
+        });
+      },
+    );
+  });
+};
+
 module.exports = {
   getDetailByID,
   searchProducts,
+  deleteProduct,
+  addProduct,
 };

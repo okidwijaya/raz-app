@@ -11,4 +11,16 @@ const getListCategory = (req, res) => {
       return resHelper.error(res, status, err);
     });
 };
-module.exports = {getListCategory};
+
+const getCategoryQuantity = (req, res) => {
+  categoryModel
+    .getCategoryQuantity(req.query)
+    .then(({status, result}) => {
+      return resHelper.success(res, status, result);
+    })
+    .catch(({status, err}) => {
+      return resHelper.error(res, status, err);
+    });
+};
+
+module.exports = {getListCategory, getCategoryQuantity};
