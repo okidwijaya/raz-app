@@ -86,6 +86,7 @@ const login = (body) => {
                 });
               const data = {
                 token,
+                id: result[0].id,
                 image: result[0].image,
                 roles: payload.roles,
               };

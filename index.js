@@ -12,8 +12,7 @@ const logger = morgan(
   ':method :url :status :res[content-length] - :response-time ms',
 );
 
-app.use('/products', express.static(path.join(__dirname, 'public')));
-app.use('/user', express.static(path.join(__dirname, 'public')));
+app.use('/', express.static(path.join(__dirname, 'public')));
 
 const port = process.env.PORT || 8000;
 app.listen(port, () => {

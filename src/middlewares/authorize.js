@@ -11,17 +11,16 @@ const checkToken = (req, res, next) => {
     if (result.length !== 0)
       return res.status(403).json({
         status: 403,
-        msg: 'You need to login to perform this action.',
-        data: null,
+        err: {msg: 'You need to login to perform this action', data: null},
       });
   });
   jwt.verify(token, process.env.SECRET_KEY, jwtOptions, (err, payload) => {
-    if (err)
+    if (err) {
       return res.status(403).json({
         status: 403,
-        msg: 'You need to login to perform this action.',
-        data: null,
+        err: {msg: 'You need to login to perform this action', data: null},
       });
+    }
     const {id, roles} = payload;
     req.userInfo = {id, roles};
     next();
@@ -34,10 +33,9 @@ const authorizeOwner = (req, res, next) => {
   if (roles === '1') {
     return next();
   }
-  res.status(403).json({
+  return res.status(403).json({
     status: 403,
-    msg: 'You need to login as Owner to perform this action.',
-    data: null,
+    err: {msg: 'You need to login as Owner to perform this action', data: null},
   });
 };
 
@@ -47,10 +45,12 @@ const authorizeCustomer = (req, res, next) => {
   if (roles === '2') {
     return next();
   }
-  res.status(403).json({
+  return res.status(403).json({
     status: 403,
-    msg: 'You need to login as Customer to perform this action.',
-    data: null,
+    err: {
+      msg: 'You need to login as Customer to perform this action',
+      data: null,
+    },
   });
 };
 
