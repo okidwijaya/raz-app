@@ -1,7 +1,6 @@
 const db = require('../config/db');
 const mysql = require('mysql');
 const {getTimeStamp} = require('../helpers/getTimeStamp');
-const {compareSync} = require('bcrypt');
 
 const addProduct = (req) => {
   return new Promise((resolve, reject) => {
@@ -22,10 +21,8 @@ const addProduct = (req) => {
       ...{createdAt},
     };
     delete newBody.category;
-    console.log(categories, newBody);
     const sqlAddProduct = `INSERT INTO product SET ?`;
     db.query(sqlAddProduct, newBody, (err, result) => {
-      console.log(err);
       if (err) {
         return reject({
           status: 500,
@@ -42,7 +39,6 @@ const addProduct = (req) => {
           values += ` (?,?) `;
         }
         prepareImages.push(idProduct, element);
-        console.log(element);
       });
       const addImagesProduct = `INSERT INTO image_product (idProduct, image) ${values}`;
       db.query(addImagesProduct, prepareImages, (err, result) => {
@@ -55,16 +51,15 @@ const addProduct = (req) => {
         let valuesCategory = 'VALUES';
         const prepareCategory = [];
         categories.forEach((element, index) => {
-          if (index !== images.length - 1) {
+          if (index !== categories.length - 1) {
             valuesCategory += ` (?,?), `;
           } else {
             valuesCategory += ` (?,?) `;
           }
           prepareCategory.push(idProduct, element);
-          console.log(element);
         });
-        const addImagesProduct = `INSERT INTO category_product (idProduct, idCategory) ${values}`;
-        db.query(addImagesProduct, prepareImages, (err, result) => {
+        const addCategoryProduct = `INSERT INTO category_product (idProduct, idCategory) ${valuesCategory}`;
+        db.query(addCategoryProduct, prepareCategory, (err, result) => {
           if (err) {
             return reject({
               status: 500,
@@ -156,7 +151,7 @@ const searchProducts = (query) => {
       page,
       limit,
     } = query;
-
+    
     const sqlSearch =
       search && search !== ''
         ? `p.name LIKE '%${search}%'`
@@ -164,12 +159,41 @@ const searchProducts = (query) => {
     const sqlIdCategory = idCategory
       ? `cp.idCategory = ${idCategory}`
       : 'cp.idCategory IS NOT NULL';
-    const sqlIdBrand = idBrand ? `b.id = ${idBrand}` : 'b.id IS NOT NULL';
-    const sqlColor =
-      color === 'all' || !color
-        ? 'p.color IS NOT NULL'
-        : `p.color = '${color}'`;
 
+    let sqlColor = 'p.color IS NOT NULL';
+    if (color && typeof color === 'string' && color !== '') {
+      sqlColor = `p.color = '${color}'`;
+    }
+
+    if (Array.isArray(color)) {
+      sqlColor = 'p.color IN (';
+      for (let i = 0; i < color.length; i++) {
+        if (i === color.length - 1) {
+          sqlColor += `'${color[i]}'`;
+        } else {
+          sqlColor += `'${color[i]}', `;
+        }
+      }
+      sqlColor += ')';
+    }
+
+    let sqlIdBrand = 'b.id IS NOT NULL';
+    if (idBrand && typeof idBrand === 'string' && idBrand !== '') {
+      sqlIdBrand = `b.id = '${idBrand}'`;
+    }
+    if (Array.isArray(idBrand)) {
+      sqlIdBrand = 'b.id IN (';
+      for (let i = 0; i < idBrand.length; i++) {
+        if (i === idBrand.length - 1) {
+          sqlIdBrand += `${idBrand[i]}`;
+        } else {
+          sqlIdBrand += `${idBrand[i]}, `;
+        }
+      }
+      sqlIdBrand += ')';
+    }
+
+    console.log(sqlIdBrand);
     let sqlSort = 'p.createdAt';
     let sqlOrder = 'DESC';
     if (sort) {
@@ -192,15 +216,8 @@ const searchProducts = (query) => {
     }
 
     let sqlPrice = 'p.price IS NOT NULL';
-
-    let sqlPriceMin = '';
-
-    let sqlPriceMax = '';
-
     if (priceMin && priceMax) {
       sqlPrice = `p.price BETWEEN ${priceMin} AND ${priceMax}`;
-      sqlPriceMin = priceMin;
-      sqlPriceMax = priceMax;
     }
 
     const sqlLimit = limit ? limit : '12';
@@ -229,6 +246,7 @@ const searchProducts = (query) => {
 
     db.query(sqlCount, prepare, (err, result) => {
       if (err) {
+        console.log(err);
         return reject({
           status: 500,
           err: {msg: 'Something went wrong', data: null},
