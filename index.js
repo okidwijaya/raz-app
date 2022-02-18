@@ -20,7 +20,7 @@ app.listen(port, () => {
 });
 
 const corsOption = {
-  origin: ['http://localhost:3000', 'https://rentalme.netlify.app'],
+  origin: ['https://localhost:3000','http://localhost:3000', 'https://rentalme.netlify.app'],
 };
 
 app.use(cors(corsOption));
