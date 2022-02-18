@@ -24,8 +24,8 @@ const addProduct = (req) => {
     console.log(categories, newBody);
     const sqlAddProduct = `INSERT INTO product SET ?`;
     db.query(sqlAddProduct, newBody, (err, result) => {
-      console.log(err);
       if (err) {
+        console.log('err insert product', err);
         console.log('err add product', err);
         return reject({
           status: 500,
@@ -67,7 +67,7 @@ const addProduct = (req) => {
         const addCategoryProduct = `INSERT INTO category_product (idProduct, idCategory) ${valuesCategory}`;
         db.query(addCategoryProduct, prepareCategory, (err, result) => {
           if (err) {
-            console.log('err product', err);
+            console.log('err cat product', err);
             return reject({
               status: 500,
               err: {msg: 'Something went wrong', data: null},
