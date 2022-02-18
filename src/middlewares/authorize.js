@@ -7,7 +7,10 @@ const checkToken = (req, res, next) => {
   const jwtOptions = {issuer: process.env.ISSUER};
   const sqlQuery = `SELECT token FROM blacklist_token WHERE token = ?`;
   db.query(sqlQuery, [token], (err, result) => {
-    if (err) return res.status(500).json(err);
+    if (err) {
+      console.log('error get token', err);
+      return res.status(500).json(err);
+    }
     if (result.length !== 0)
       return res.status(403).json({
         status: 403,
