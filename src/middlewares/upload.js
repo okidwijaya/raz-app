@@ -4,11 +4,11 @@ const path = require('path');
 const maxfilesize = 2 * 1024 * 1024;
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'media/images/');
+    cb(null, 'public/users/');
   },
   filename: (req, file, cb) => {
-    const {payload} = req;
-    const id = payload.id;
+    const {userInfo} = req;
+    const id = userInfo.id;
     const fileName = `${file.fieldname}-${id}-${Date.now()}${path.extname(
       file.originalname,
     )}`;
@@ -34,31 +34,31 @@ const multerOption = {
   limits: {fileSize: maxfilesize},
 };
 
-const upload = multer(multerOption).single('profilePicture');
+const upload = multer(multerOption).single('image');
 const multerHandler = (req, res, next) => {
   upload(req, res, (err) => {
     if (err) {
-        console.log('error found', err);
-        if (err.code === 'LIMIT_FILE_SIZE') {
-          return res.status(400).json({
-            errMsg: `Image size mustn't be bigger than 2MB!`,
-            err: err.code,
-          });
-        }
-        if (err.code === 'WRONG_EXSTENSION') {
-          return res.status(400).json({
-            errMsg: `Only .png, .jpg and .jpeg format allowed!`,
-            err: err.code,
-          });
-        }
-        return res.status(500).json({
-          errMsg: `Something went wrong.`,
-          err,
+      console.log('error found', err);
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          errMsg: `Image size mustn't be bigger than 2MB!`,
+          err: err.code,
         });
       }
-      const images = getImagePath(req.files);
-      req.images = images;
-      next();
+      if (err.code === 'WRONG_EXSTENSION') {
+        return res.status(400).json({
+          errMsg: `Only .png, .jpg and .jpeg format allowed!`,
+          err: err.code,
+        });
+      }
+      return res.status(500).json({
+        errMsg: `Something went wrong.`,
+        err,
+      });
+    }
+    console.log(req);
+    req.image = `/users/${req.file.filename}`;
+    next();
   });
 };
 
