@@ -55,7 +55,6 @@ const login = (body) => {
   return new Promise((resolve, reject) => {
     const {email, password, rememberMe} = body;
     const sqlQuery = 'SELECT * FROM user WHERE ?';
-
     db.query(sqlQuery, [{email}], async (err, result) => {
       if (err) {
         console.log(err);
@@ -67,7 +66,7 @@ const login = (body) => {
       if (result.length == 0)
         return reject({
           status: 401,
-          result: {msg: 'Invalid Email/Password', data: null},
+          err: {msg: 'Invalid Email/Password', data: null},
         });
 
       try {
