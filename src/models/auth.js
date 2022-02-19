@@ -57,7 +57,13 @@ const login = (body) => {
     const sqlQuery = 'SELECT * FROM user WHERE ?';
 
     db.query(sqlQuery, [{email}], async (err, result) => {
-      if (err) return reject({status: 500, err});
+      if (err) {
+        console.log(err);
+        return reject({
+          status: 500,
+          err: {msg: 'Login Failed', data: null},
+        });
+      }
       if (result.length == 0)
         return reject({
           status: 401,
@@ -82,11 +88,13 @@ const login = (body) => {
             process.env.SECRET_KEY,
             jwtOptions,
             (err, token) => {
-              if (err)
+              if (err) {
+                console.log(err);
                 return reject({
                   status: 500,
                   err: {msg: 'Login Failed', data: null},
                 });
+              }
               const data = {
                 token,
                 id: result[0].id,
@@ -97,13 +105,13 @@ const login = (body) => {
             },
           );
         } else {
-          reject({
+          return reject({
             status: 401,
             err: {msg: 'Invalid Email/Password', data: null},
           });
         }
       } catch (err) {
-        reject({
+        return reject({
           status: 500,
           err: {msg: 'Login Failed', data: null},
         });
