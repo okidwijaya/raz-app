@@ -11,6 +11,9 @@ const register = (req, res, next) => {
       : false;
   if (!isBodyValid)
     return responseHelper.error(res, 400, {msg: 'Invalid Request', data: null});
+  if (body.roles !== '1' && body.roles !== '2') {
+    return responseHelper.error(res, 400, {msg: 'Invalid Roles', data: null});
+  }
   next();
 };
 
@@ -28,4 +31,14 @@ const login = (req, res, next) => {
   next();
 };
 
-module.exports = {register, login};
+const changePassword = (req, res, next) => {
+  if (req.body.oldPassword === req.body.newPassword) {
+    return responseHelper.error(res, 400, {
+      msg: `Old and new password can't be the same`,
+      data: null,
+    });
+  }
+  next();
+};
+
+module.exports = {register, login, changePassword};

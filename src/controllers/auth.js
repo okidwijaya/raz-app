@@ -10,7 +10,7 @@ const register = (req, res) => {
       return resHelper.success(res, status, result);
     })
     .catch(({status, err}) => {
-      resHelper.error(res, status, err);
+      return resHelper.error(res, status, err);
     });
 };
 
@@ -19,10 +19,10 @@ const login = (req, res) => {
   authModel
     .login(body)
     .then(({status, result}) => {
-      resHelper.success(res, status, result);
+      return resHelper.success(res, status, result);
     })
     .catch(({status, err}) => {
-      resHelper.error(res, status, err);
+      return resHelper.error(res, status, err);
     });
 };
 
@@ -34,8 +34,21 @@ const logout = (req, res) => {
       return resHelper.success(res, status, result);
     })
     .catch(({status, err}) => {
-      resHelper.error(res, status, err);
+      return resHelper.error(res, status, err);
     });
 };
 
-module.exports = {register, login, logout};
+const changePassword = (req, res) => {
+  const {body, userInfo} = req;
+  const {oldPassword, newPassword} = body;
+  authModel
+    .changePassword(oldPassword, newPassword, userInfo.id)
+    .then(({status, result}) => {
+      return resHelper.success(res, status, result);
+    })
+    .catch(({status, err}) => {
+      return resHelper.error(res, status, err);
+    });
+};
+
+module.exports = {register, login, logout, changePassword};

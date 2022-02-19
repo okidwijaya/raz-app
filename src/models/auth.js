@@ -55,13 +55,18 @@ const login = (body) => {
   return new Promise((resolve, reject) => {
     const {email, password, rememberMe} = body;
     const sqlQuery = 'SELECT * FROM user WHERE ?';
-
     db.query(sqlQuery, [{email}], async (err, result) => {
-      if (err) return reject({status: 500, err});
+      if (err) {
+        console.log(err);
+        return reject({
+          status: 500,
+          err: {msg: 'Login Failed', data: null},
+        });
+      }
       if (result.length == 0)
         return reject({
           status: 401,
-          result: {msg: 'Invalid Email/Password', data: null},
+          err: {msg: 'Invalid Email/Password', data: null},
         });
 
       try {
@@ -82,11 +87,13 @@ const login = (body) => {
             process.env.SECRET_KEY,
             jwtOptions,
             (err, token) => {
-              if (err)
+              if (err) {
+                console.log(err);
                 return reject({
                   status: 500,
                   err: {msg: 'Login Failed', data: null},
                 });
+              }
               const data = {
                 token,
                 id: result[0].id,
@@ -97,13 +104,13 @@ const login = (body) => {
             },
           );
         } else {
-          reject({
+          return reject({
             status: 401,
             err: {msg: 'Invalid Email/Password', data: null},
           });
         }
       } catch (err) {
-        reject({
+        return reject({
           status: 500,
           err: {msg: 'Login Failed', data: null},
         });
@@ -202,7 +209,66 @@ const logout = (token) => {
           status: 500,
           err: {msg: 'Logout Failed', data: null},
         });
-      resolve({status: 200, result: {msg: 'Logout Success', data: null}});
+      return resolve({
+        status: 200,
+        result: {msg: 'Logout Success', data: null},
+      });
+    });
+  });
+};
+
+const changePassword = (oldPassword, newPassword, id) => {
+  return new Promise((resolve, reject) => {
+    const sqlGetOldPassword =
+      'SELECT id, email, password from user WHERE id = ?';
+    db.query(sqlGetOldPassword, [id], (err, result) => {
+      if (err) {
+        return reject({
+          status: 500,
+          err: {msg: 'Something went wrong', data: null},
+        });
+      }
+      const passwordHased = result[0].password;
+      bcrypt.compare(oldPassword, passwordHased, (err, result) => {
+        if (err) {
+          return reject({
+            status: 500,
+            err: {msg: 'Something went wrong', data: null},
+          });
+        }
+        if (result === false) {
+          return reject({
+            status: 400,
+            err: {msg: 'Incorect old password', data: null},
+          });
+        }
+        bcrypt
+          .hash(newPassword, 10)
+          .then((hashedPassword) => {
+            const sqlUpdatePassword = `UPDATE user
+            SET password = ?
+            WHERE id = ?`;
+            db.query(sqlUpdatePassword, [hashedPassword, id], (err, result) => {
+              if (err) {
+                return reject({
+                  status: 500,
+                  err: {msg: 'Something went wrong', data: null},
+                });
+              }
+              return resolve({
+                status: 200,
+                result: {msg: 'Update password success', data: null},
+              });
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+            return reject({
+              status: 500,
+              err: {msg: 'Something went wrong', data: null},
+            });
+          });
+      });
     });
   });
 };
@@ -212,6 +278,6 @@ module.exports = {
   login,
   forgotPassword,
   checkOTP,
-  resetPassword,
+  changePassword,
   logout,
 };
