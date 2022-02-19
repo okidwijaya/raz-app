@@ -38,7 +38,7 @@ const checkToken = (req, res, next) => {
   });
 };
 
-const authorizeOwner = (req, res, next) => {
+const authorizeSeller = (req, res, next) => {
   const {roles} = req.userInfo;
   console.log('roles:', roles);
   if (roles === '1') {
@@ -46,7 +46,7 @@ const authorizeOwner = (req, res, next) => {
   }
   return resHelper.error(res, 403, {
     status: 403,
-    msg: 'You need to login as Owner to perform this action',
+    msg: 'You need to login as Seller to perform this action',
     data: null,
   });
 };
@@ -66,6 +66,6 @@ const authorizeCustomer = (req, res, next) => {
 
 module.exports = {
   checkToken,
-  authorizeOwner,
+  authorizeSeller,
   authorizeCustomer,
 };
