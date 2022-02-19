@@ -46,7 +46,7 @@ const authorizeOwner = (req, res, next) => {
   }
   return resHelper.error(res, 403, {
     status: 403,
-    msg: 'You need to login as Owner to perform this action',
+    msg: 'You need to login as Seller to perform this action',
     data: null,
   });
 };
