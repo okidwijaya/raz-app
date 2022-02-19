@@ -94,8 +94,8 @@ const userTransaction = (query, userInfo) => {
           status: 200,
           result: {
             msg: "List of user transaction.",
+            data: result,
             meta,
-            data: { result },
           },
         });
       });
@@ -238,15 +238,6 @@ const updateTransaction = (body, id) => {
 
 const detailTransaction = (idTransaction) => {
   return new Promise((resolve, reject) => {
-    // const sqlSelect = `SELECT t.id, t.idUser, t.totalPrice, p.name, t.status, t.createdAt,
-    //   (SELECT image FROM image_product WHERE image_product.idproduct = p.id LIMIT 1) as image
-    //         FROM transaction t LEFT JOIN transaction_product tp ON tp.id =
-    //         (SELECT idTransaction FROM transaction_product WHERE transaction_product.idTransaction = t.id LIMIT 1)
-    //         LEFT JOIN product p ON p.id = tp.idProduct
-    //         WHERE ? IS NULL AND ? ? ?
-    //         ORDER BY t.createdAt DESC
-    //         LIMIT ? OFFSET ?`;
-
     const sqlTransaction = `SELECT id, idUser, totalPrice, shippingMethod, status, createdAt, updatedAt
     FROM transaction
     WHERE id = ?`;
