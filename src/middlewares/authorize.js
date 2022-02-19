@@ -9,7 +9,11 @@ const checkToken = (req, res, next) => {
   db.query(sqlQuery, [token], (err, result) => {
     if (err) {
       console.log('error get token', err);
-      return res.status(500).json(err);
+      return res.status(500).json({
+        status: 500,
+        msg: 'Something went wrong',
+        data: null,
+      });
     }
     if (result.length !== 0)
       return res.status(403).json({
