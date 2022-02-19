@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../config/db');
+const {getTimeStamp} = require('../helpers/getTimeStamp');
 
 const register = (body) => {
   return new Promise((resolve, reject) => {
@@ -17,12 +18,14 @@ const register = (body) => {
           err: {msg: 'Email is already registered', data: null},
         });
 
+      const timestamp = getTimeStamp();
       const sqlQuery = 'INSERT INTO user SET ?';
       bcrypt
         .hash(body.password, 10)
         .then((hashedPassword) => {
           const newBody = {
             ...body,
+            createdAt: timestamp,
             password: hashedPassword,
           };
           db.query(sqlQuery, [newBody], (err, result) => {
