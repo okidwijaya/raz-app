@@ -38,7 +38,7 @@ const checkToken = (req, res, next) => {
   });
 };
 
-const authorizeOwner = (req, res, next) => {
+const authorizeSeller = (req, res, next) => {
   const {roles} = req.userInfo;
   console.log('roles:', roles);
   if (roles === '1') {
@@ -66,6 +66,6 @@ const authorizeCustomer = (req, res, next) => {
 
 module.exports = {
   checkToken,
-  authorizeOwner,
+  authorizeSeller,
   authorizeCustomer,
 };

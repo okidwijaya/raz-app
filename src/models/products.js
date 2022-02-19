@@ -303,9 +303,148 @@ const deleteProduct = (idProduct, idUser) => {
   });
 };
 
+const getSellerProduct = (query, id) => {
+  return new Promise((resolve, reject) => {
+    const {filter, limit, page} = query;
+
+    let deletedCol = '';
+    let filterProduct = 'p.deletedAt IS NULL';
+    console.log('bug finder 1');
+    if (filter.toLowerCase() === 'archieve') {
+      deletedCol = ', p.deletedAt ';
+      filterProduct = 'p.deletedAt IS NOT NULL';
+    }
+    if (filter.toLowerCase() === 'sold out') {
+      filterProduct += ' AND p.stock = 0';
+    }
+    const sqlLimit = limit ? limit : '5';
+    const sqlOffset =
+      !page || page === '1' ? 0 : (parseInt(page) - 1) * parseInt(sqlLimit);
+    const prepare = [
+      mysql.raw(deletedCol),
+      id,
+      mysql.raw(filterProduct),
+      mysql.raw(sqlLimit),
+      sqlOffset,
+    ];
+    const sqlCount = `SELECT count(*) count ?
+    FROM product p WHERE idUser = ? AND ?`;
+
+    const sqlGetData = `SELECT p.id, p.name, p.price, p.stock, 
+    (SELECT image FROM image_product WHERE idProduct = p.id LIMIT 1) as image ?
+    FROM product p WHERE p.idUser = ? AND ? 
+    LIMIT ? OFFSET ?`;
+    db.query(sqlCount, prepare, (err, result) => {
+      if (err) {
+        console.log(err);
+        return reject({
+          status: 500,
+          err: {msg: 'Something went wrong', data: null},
+        });
+      }
+      const totalData = result[0].count;
+      const currentPage = page ? parseInt(page) : 1;
+      const totalPage =
+        totalData < parseInt(sqlLimit)
+          ? 1
+          : Math.ceil(totalData / parseInt(sqlLimit));
+      const meta = {
+        page: currentPage,
+        totalPage,
+        limit: parseInt(sqlLimit),
+        totalData,
+      };
+      db.query(sqlGetData, prepare, (err, result) => {
+        if (err) {
+          console.log(err);
+          return reject({
+            status: 500,
+            err: {msg: 'Something went wrong', data: null},
+          });
+        }
+        return resolve({
+          status: 200,
+          result: {
+            msg: `List Product Seller`,
+            data: result,
+            meta,
+          },
+        });
+      });
+    });
+  });
+};
+
+const getRelatedProduct = (id) => {
+  return new Promise((resolve, reject) => {
+    const sqlBrand = `SELECT idBrand FROM product WHERE id = ?`;
+    db.query(sqlBrand, id, (err, result) => {
+      if (err) {
+        console.log(err);
+        return reject({
+          status: 500,
+          err: {msg: 'Something went wrong', data: null},
+        });
+      }
+      const idBrand = result[0].idBrand;
+      const sqlCategory = `SELECT idCategory from category_product WHERE  idProduct = ?`;
+      db.query(sqlCategory, [id], (err, result) => {
+        if (err) {
+          console.log(err);
+          return reject({
+            status: 500,
+            err: {msg: 'Something went wrong', data: null},
+          });
+        }
+        console.log('result category', result);
+        let filterCategory = '';
+        const idCategories = result.idCategory;
+        if (result.length === 1) {
+          filterCategory = `c.id = ${result[0].idCategory}`;
+        } else {
+          filterCategory = 'c.id IN (';
+          for (let i = 0; i < result.length; i++) {
+            if (i === result.length - 1) {
+              filterCategory += `${result[i].idCategory}`;
+            } else {
+              filterCategory += `${result[i].idCategory}, `;
+            }
+          }
+          filterCategory += ')';
+        }
+        console.log(filterCategory);
+        const prepare = [[id], idBrand, mysql.raw(filterCategory)];
+        const sqlRelatedProduct = `SELECT p.id, p.name, p.price, 
+        (SELECT image from image_product WHERE idProduct = p.id LIMIT 1) as image
+        FROM product p JOIN category_product cp ON cp.idProduct = p.id 
+        JOIN category c ON c.id = cp.idCategory
+        WHERE NOT p.id = ? AND p.deletedAt IS NULL AND p.idBrand = ? AND ? LIMIT 9`;
+        db.query(sqlRelatedProduct, prepare, (err, result) => {
+          if (err) {
+            console.log(err);
+            return reject({
+              status: 500,
+              err: {msg: 'Something went wrong', data: null},
+            });
+          }
+          return resolve({
+            status: 200,
+            result: {
+              msg: `Related Product`,
+              data: result,
+            },
+          });
+        });
+      });
+    });
+  });
+};
+
 module.exports = {
   getDetailByID,
   searchProducts,
   deleteProduct,
   addProduct,
+  getSellerProduct,
+  getRelatedProduct,
 };

@@ -27,7 +27,7 @@ transactionRouter.post(
 transactionRouter.patch(
   "/:id",
   auth.checkToken,
-  auth.authorizeOwner,
+  auth.authorizeSeller,
   transactionController.updateTransaction
 );
 
@@ -43,7 +43,7 @@ transactionRouter.delete(
 // transactionRouter.delete(
 //   "/:id",
 //   auth.checkToken,
-//   auth.authorizeOwner,
+//   auth.authorizeSeller,
 //   productsController.deleteProduct
 // );
 
