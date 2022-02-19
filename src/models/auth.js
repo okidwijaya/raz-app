@@ -209,7 +209,66 @@ const logout = (token) => {
           status: 500,
           err: {msg: 'Logout Failed', data: null},
         });
-      resolve({status: 200, result: {msg: 'Logout Success', data: null}});
+      return resolve({
+        status: 200,
+        result: {msg: 'Logout Success', data: null},
+      });
+    });
+  });
+};
+
+const changePassword = (oldPassword, newPassword, id) => {
+  return new Promise((resolve, reject) => {
+    const sqlGetOldPassword =
+      'SELECT id, email, password from user WHERE id = ?';
+    db.query(sqlGetOldPassword, [id], (err, result) => {
+      if (err) {
+        return reject({
+          status: 500,
+          err: {msg: 'Something went wrong', data: null},
+        });
+      }
+      const passwordHased = result[0].password;
+      bcrypt.compare(oldPassword, passwordHased, (err, result) => {
+        if (err) {
+          return reject({
+            status: 500,
+            err: {msg: 'Something went wrong', data: null},
+          });
+        }
+        if (result === false) {
+          return reject({
+            status: 400,
+            err: {msg: 'Incorect old password', data: null},
+          });
+        }
+        bcrypt
+          .hash(newPassword, 10)
+          .then((hashedPassword) => {
+            const sqlUpdatePassword = `UPDATE user
+            SET password = ?
+            WHERE id = ?`;
+            db.query(sqlUpdatePassword, [hashedPassword, id], (err, result) => {
+              if (err) {
+                return reject({
+                  status: 500,
+                  err: {msg: 'Something went wrong', data: null},
+                });
+              }
+              return resolve({
+                status: 200,
+                result: {msg: 'Update password success', data: null},
+              });
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+            return reject({
+              status: 500,
+              err: {msg: 'Something went wrong', data: null},
+            });
+          });
+      });
     });
   });
 };
@@ -219,6 +278,6 @@ module.exports = {
   login,
   forgotPassword,
   checkOTP,
-  resetPassword,
+  changePassword,
   logout,
 };

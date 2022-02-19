@@ -38,4 +38,17 @@ const logout = (req, res) => {
     });
 };
 
-module.exports = {register, login, logout};
+const changePassword = (req, res) => {
+  const {body, userInfo} = req;
+  const {oldPassword, newPassword} = body;
+  authModel
+    .changePassword(oldPassword, newPassword, userInfo.id)
+    .then(({status, result}) => {
+      return resHelper.success(res, status, result);
+    })
+    .catch(({status, err}) => {
+      return resHelper.error(res, status, err);
+    });
+};
+
+module.exports = {register, login, logout, changePassword};
