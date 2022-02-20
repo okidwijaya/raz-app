@@ -36,7 +36,7 @@ const userTransaction = (query, userInfo) => {
         console.log(err);
         return reject({
           status: 500,
-          result: { err: "Something went wrong." },
+          result: { err: "Something went wrong.", data: null },
         });
       }
       const totalData = result[0].count;
@@ -87,7 +87,7 @@ const userTransaction = (query, userInfo) => {
           console.log(err);
           return reject({
             status: 500,
-            result: { err: "Something went wrong." },
+            result: { err: "Something went wrong.", data: null },
           });
         }
         return resolve({
@@ -193,7 +193,7 @@ const addTransaction = (req) => {
             console.log("err inside addlist", err);
             return reject({
               status: 500,
-              result: { err: "Something went wrong." },
+              result: { err: "Something went wrong.", data: null },
             });
           }
 
@@ -225,7 +225,7 @@ const updateTransaction = (body, id) => {
         console.log(err);
         return reject({
           status: 500,
-          result: { err: "Something went wrong." },
+          result: { err: "Something went wrong.", data: null },
         });
       }
       return resolve({
@@ -251,7 +251,7 @@ const detailTransaction = (idTransaction) => {
         console.log(err);
         return reject({
           status: 500,
-          result: { err: "Something went wrong." },
+          result: { err: "Something went wrong.", data: null },
         });
       }
 
@@ -262,7 +262,7 @@ const detailTransaction = (idTransaction) => {
           console.log(err);
           return reject({
             status: 500,
-            result: { err: "Something went wrong." },
+            result: { err: "Something went wrong.", data: null },
           });
         }
 
