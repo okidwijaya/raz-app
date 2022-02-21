@@ -42,7 +42,10 @@ const getCategoryQuantity = (query) => {
     }
     const sql = `SELECT c.id, c.category, count(cp.idProduct) as totalProduct 
     FROM category c LEFT JOIN category_product cp 
-    ON cp.idCategory = c.id GROUP BY c.id ORDER BY ?`;
+    ON cp.idCategory = c.id 
+    JOIN product p ON p.id = cp.IdProduct
+    WHERE p.deletedAt IS NULL
+    GROUP BY c.id ORDER BY ?`;
     db.query(sql, [mysql.raw(sqlSort)], (err, result) => {
       console.log(err);
       if (err) {
