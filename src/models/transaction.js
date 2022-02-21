@@ -75,7 +75,7 @@ const userTransaction = (query, userInfo) => {
 
       const sqlSelect = `SELECT t.id, t.idUser, t.totalPrice, p.name,
       (SELECT count(*) count FROM transaction_product where t.id = transaction_product.idTransaction limit 1) as count,
-      t.shippingMethod, t.paymentMethod, t.status, t.createdAt, 
+      t.shippingMethod, t.paymentMethod, t.status, t.createdAt, t.updatedAt,
       (SELECT image FROM image_product WHERE image_product.idproduct = p.id LIMIT 1) as image
             FROM transaction t LEFT JOIN transaction_product tp ON tp.id = 
             (SELECT idTransaction FROM transaction_product WHERE transaction_product.idTransaction = t.id LIMIT 1)
@@ -172,7 +172,7 @@ const sellerTransaction = (query) => {
 
       const sqlSelect = `SELECT t.id, t.idUser, t.totalPrice, p.name, 
       (SELECT count(*) count FROM transaction_product where t.id = transaction_product.idTransaction limit 1) as count,
-      t.shippingMethod, t.paymentMethod, t.status, t.createdAt, 
+      t.shippingMethod, t.paymentMethod, t.status, t.createdAt, t.updatedAt,
         (SELECT image FROM image_product WHERE image_product.idproduct = p.id LIMIT 1) as image
               FROM transaction t LEFT JOIN transaction_product tp ON tp.id = 
               (SELECT idTransaction FROM transaction_product WHERE transaction_product.idTransaction = t.id LIMIT 1)
