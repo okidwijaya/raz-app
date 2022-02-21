@@ -12,6 +12,13 @@ transactionRouter.get(
 );
 
 transactionRouter.get(
+  "/seller",
+  auth.checkToken,
+  auth.authorizeSeller,
+  transactionController.sellerTransaction
+);
+
+transactionRouter.get(
   "/:id",
   auth.checkToken,
   transactionController.detailTransaction
@@ -27,7 +34,6 @@ transactionRouter.post(
 transactionRouter.patch(
   "/:id",
   auth.checkToken,
-  auth.authorizeSeller,
   transactionController.updateTransaction
 );
 

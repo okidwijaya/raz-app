@@ -36,7 +36,7 @@ const userTransaction = (query, userInfo) => {
         console.log(err);
         return reject({
           status: 500,
-          result: { err: "Something went wrong.", data: null },
+          err: { msg: "Something went wrong", data: null },
         });
       }
       const totalData = result[0].count;
@@ -73,7 +73,9 @@ const userTransaction = (query, userInfo) => {
         totalPage,
       };
 
-      const sqlSelect = `SELECT t.id, t.idUser, t.totalPrice, p.name, t.status, t.createdAt, 
+      const sqlSelect = `SELECT t.id, t.idUser, t.totalPrice, p.name,
+      (SELECT count(*) count FROM transaction_product where t.id = transaction_product.idTransaction limit 1) as count,
+      t.shippingMethod, t.paymentMethod, t.status, t.createdAt, 
       (SELECT image FROM image_product WHERE image_product.idproduct = p.id LIMIT 1) as image
             FROM transaction t LEFT JOIN transaction_product tp ON tp.id = 
             (SELECT idTransaction FROM transaction_product WHERE transaction_product.idTransaction = t.id LIMIT 1)
@@ -87,7 +89,7 @@ const userTransaction = (query, userInfo) => {
           console.log(err);
           return reject({
             status: 500,
-            result: { err: "Something went wrong.", data: null },
+            err: { msg: "Something went wrong", data: null },
           });
         }
         return resolve({
@@ -103,12 +105,110 @@ const userTransaction = (query, userInfo) => {
   });
 };
 
+const sellerTransaction = (query) => {
+  return new Promise((resolve, reject) => {
+    const { page, limit, status } = query;
+    const sqlPage = !page || page === "" ? "1" : page;
+    const sqlLimit = !limit || limit === "" ? "15" : limit;
+    const offset = (parseInt(sqlPage) - 1) * parseInt(sqlLimit);
+    let deletedAt = "t.deletedAt";
+    const sqlStatus =
+      !status || status === "" ? "" : `AND t.status = '${status}'`;
+
+    const prepare = [
+      mysql.raw(deletedAt),
+      mysql.raw(sqlStatus),
+      mysql.raw(sqlLimit),
+      offset,
+    ];
+
+    const sqlCount = `SELECT count(*) count
+    FROM transaction t LEFT JOIN transaction_product tp ON tp.id = 
+    (SELECT idTransaction FROM transaction_product WHERE transaction_product.idTransaction = t.id LIMIT 1)
+    LEFT JOIN product p ON p.id = tp.idProduct
+    WHERE ? IS NULL ?`;
+
+    db.query(sqlCount, prepare, (err, result) => {
+      if (err) {
+        console.log("err inside count", err);
+        return reject({
+          status: 500,
+          err: { msg: "Something went wrong", data: null },
+        });
+      }
+      const totalData = result[0].count;
+      const nextOffset = parseInt(offset) + parseInt(sqlLimit);
+      let nextPage = "?";
+      let prevPage = "?";
+      const nPage = nextOffset >= totalData ? null : parseInt(sqlPage) + 1;
+      const pPage = sqlPage > 1 ? +sqlPage - 1 : null;
+      const totalPage = Math.ceil(totalData / parseInt(sqlLimit));
+      if (nPage == null) {
+        nextPage = null;
+      } else {
+        const nextCount = parseInt(sqlPage) + 1;
+        nextPage += "page=" + nextCount;
+        if (limit) {
+          nextPage += "&limit=" + limit;
+        }
+      }
+      if (pPage == null) {
+        prevPage = null;
+      } else {
+        const prevCounter = parseInt(sqlPage) - 1;
+        prevPage += "page=" + prevCounter;
+        if (limit) {
+          prevPage += "&limit=" + limit;
+        }
+      }
+
+      const meta = {
+        totalData,
+        prevPage,
+        page: sqlPage,
+        nextPage,
+        totalPage,
+      };
+
+      const sqlSelect = `SELECT t.id, t.idUser, t.totalPrice, p.name, 
+      (SELECT count(*) count FROM transaction_product where t.id = transaction_product.idTransaction limit 1) as count,
+      t.shippingMethod, t.paymentMethod, t.status, t.createdAt, 
+        (SELECT image FROM image_product WHERE image_product.idproduct = p.id LIMIT 1) as image
+              FROM transaction t LEFT JOIN transaction_product tp ON tp.id = 
+              (SELECT idTransaction FROM transaction_product WHERE transaction_product.idTransaction = t.id LIMIT 1)
+              LEFT JOIN product p ON p.id = tp.idProduct
+              WHERE ? IS NULL ?
+              ORDER BY t.createdAt DESC
+              LIMIT ? OFFSET ?`;
+
+      db.query(sqlSelect, prepare, (err, result) => {
+        if (err) {
+          console.log("err inside select", err);
+          return reject({
+            status: 500,
+            err: { msg: "Something went wrong", data: null },
+          });
+        }
+        return resolve({
+          status: 200,
+          result: {
+            msg: "List of all transaction.",
+            data: result,
+            meta,
+          },
+        });
+      });
+    });
+  });
+};
+
 const addTransaction = (req) => {
   return new Promise((resolve, reject) => {
     const { body, userInfo } = req;
     const idUser = userInfo.id;
     const createdAt = getTimeStamp();
-    const { totalPrice, shippingMethod, status, productList } = body;
+    const { totalPrice, shippingMethod, paymentMethod, status, productList } =
+      body;
 
     // let newProductList = [];
 
@@ -116,6 +216,7 @@ const addTransaction = (req) => {
       idUser,
       totalPrice,
       shippingMethod,
+      paymentMethod,
       status,
       createdAt,
     };
@@ -193,7 +294,7 @@ const addTransaction = (req) => {
             console.log("err inside addlist", err);
             return reject({
               status: 500,
-              result: { err: "Something went wrong.", data: null },
+              err: { msg: "Something went wrong", data: null },
             });
           }
 
@@ -225,7 +326,7 @@ const updateTransaction = (body, id) => {
         console.log(err);
         return reject({
           status: 500,
-          result: { err: "Something went wrong.", data: null },
+          err: { msg: "Something went wrong", data: null },
         });
       }
       return resolve({
@@ -238,7 +339,7 @@ const updateTransaction = (body, id) => {
 
 const detailTransaction = (idTransaction) => {
   return new Promise((resolve, reject) => {
-    const sqlTransaction = `SELECT id, idUser, totalPrice, shippingMethod, status, createdAt, updatedAt
+    const sqlTransaction = `SELECT id, idUser, totalPrice, shippingMethod, paymentMethod, status, createdAt, updatedAt
     FROM transaction
     WHERE id = ?`;
 
@@ -251,7 +352,7 @@ const detailTransaction = (idTransaction) => {
         console.log(err);
         return reject({
           status: 500,
-          result: { err: "Something went wrong.", data: null },
+          err: { msg: "Something went wrong", data: null },
         });
       }
 
@@ -262,7 +363,7 @@ const detailTransaction = (idTransaction) => {
           console.log(err);
           return reject({
             status: 500,
-            result: { err: "Something went wrong.", data: null },
+            err: { msg: "Something went wrong", data: null },
           });
         }
 
@@ -309,6 +410,7 @@ const deleteTransaction = (id, idUser) => {
 
 module.exports = {
   userTransaction,
+  sellerTransaction,
   addTransaction,
   updateTransaction,
   detailTransaction,
