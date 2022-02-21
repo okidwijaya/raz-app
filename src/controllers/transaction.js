@@ -13,6 +13,18 @@ const userTransaction = (req, res) => {
     });
 };
 
+const sellerTransaction = (req, res) => {
+  const { query} = req;
+  transactionModel
+    .sellerTransaction(query)
+    .then(({ status, result }) => {
+      return resHelper.success(res, status, result);
+    })
+    .catch(({ status, err }) => {
+      return resHelper.error(res, status, err);
+    });
+};
+
 const addTransaction = (req, res) => {
   transactionModel
     .addTransaction(req)
@@ -63,6 +75,7 @@ const deleteTransaction = (req, res) => {
 
 module.exports = {
   userTransaction,
+  sellerTransaction,
   addTransaction,
   updateTransaction,
   detailTransaction,
