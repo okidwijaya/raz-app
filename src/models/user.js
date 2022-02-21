@@ -6,7 +6,7 @@ const {getTimeStamp} = require('../helpers/getTimeStamp');
 const getDetailUser = (id, roles) => {
   return new Promise((resolve, reject) => {
     const sqlGetDetail = `SELECT id, name, email, 
-    gender, roles, image ${roles === '1' ? ', description' : ''}
+    gender, roles, image ${roles === '1' ? ', description, storeName' : ''}
     FROM user WHERE id  = ?`;
     db.query(sqlGetDetail, [id], (err, result) => {
       if (err) {

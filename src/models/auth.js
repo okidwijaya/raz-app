@@ -10,7 +10,11 @@ const register = (body) => {
     const registerEmail = `SELECT email FROM user WHERE email = ?`;
     db.query(registerEmail, [email], (err, result) => {
       console.log(err);
-      if (err) return reject({status: 500, err});
+      if (err)
+        return reject({
+          status: 500,
+          err: {msg: 'Something went wrong', data: null},
+        });
       console.log(result);
       if (result.length >= 1)
         return reject({

@@ -17,7 +17,7 @@ const checkToken = (req, res, next) => {
       });
     }
     if (result.length !== 0) {
-      return reject(res, 403, {
+      return resHelper.error(res, 403, {
         status: 403,
         msg: 'You need to login to perform this action',
         data: null,
