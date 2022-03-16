@@ -327,14 +327,20 @@ const getSellerProduct = (query, id) => {
       mysql.raw(sqlLimit),
       sqlOffset,
     ];
-    const sqlCount = `SELECT count(*) count ?
+    const prepareCount = [
+      id,
+      mysql.raw(filterProduct),
+      mysql.raw(sqlLimit),
+      sqlOffset,
+    ];
+    const sqlCount = `SELECT count(*) count 
     FROM product p WHERE idUser = ? AND ?`;
 
     const sqlGetData = `SELECT p.id, p.name, p.price, p.stock, 
     (SELECT image FROM image_product WHERE idProduct = p.id LIMIT 1) as image ?
     FROM product p WHERE p.idUser = ? AND ? 
     LIMIT ? OFFSET ?`;
-    db.query(sqlCount, prepare, (err, result) => {
+    db.query(sqlCount, prepareCount, (err, result) => {
       if (err) {
         console.log(err);
         return reject({
