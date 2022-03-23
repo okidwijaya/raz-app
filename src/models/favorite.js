@@ -104,7 +104,7 @@ const addToFavorite = (req) => {
       idProduct,
     };
 
-    const sqlAdd = `INSERT INTO Favorite SET ?`;
+    const sqlAdd = `INSERT INTO favorite SET ?`;
 
     db.query(sqlAdd, bodyFavorite, (err, result) => {
       if (err) {
