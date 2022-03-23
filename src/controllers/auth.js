@@ -38,6 +38,40 @@ const logout = (req, res) => {
     });
 };
 
+const getOtp = (req, res) => {
+  const {body} = req;
+  authModel
+    .getOtp(body)
+    .then(({status, result}) => {
+      return resHelper.success(res, status, result);
+    })
+    .catch(({status, err}) => {
+      return resHelper.error(res, status, err);
+    });
+};
+const checkOtp = (req, res) => {
+  const {body} = req;
+  authModel
+    .checkOtp(body)
+    .then(({status, result}) => {
+      return resHelper.success(res, status, result);
+    })
+    .catch(({status, err}) => {
+      return resHelper.error(res, status, err);
+    });
+};
+const resetPassword = (req, res) => {
+  const {body} = req;
+  authModel
+    .resetPassword(body)
+    .then(({status, result}) => {
+      return resHelper.success(res, status, result);
+    })
+    .catch(({status, err}) => {
+      return resHelper.error(res, status, err);
+    });
+};
+
 const changePassword = (req, res) => {
   const {body, userInfo} = req;
   const {oldPassword, newPassword} = body;
@@ -51,4 +85,4 @@ const changePassword = (req, res) => {
     });
 };
 
-module.exports = {register, login, logout, changePassword};
+module.exports = {register, login, logout, changePassword, getOtp, checkOtp, resetPassword};
