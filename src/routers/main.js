@@ -7,9 +7,7 @@ const categoryRouter = require('./category');
 const brandRouter = require('./brand');
 const transactionRouter = require('./transaction');
 const userRouter = require('./user');
-// const historyRouter = require('./history');
-// const vehiclesRouter = require('./vehicles');
-// const cityRouter = require('./city');
+const favoriteRouter = require('./favorite');
 
 router.use('/auth', authRouter);
 router.use('/products', productsRouter);
@@ -17,12 +15,6 @@ router.use('/category', categoryRouter);
 router.use('/brand', brandRouter);
 router.use('/transaction', transactionRouter);
 router.use('/user', userRouter);
-// router.use('/history', historyRouter);
-// router.use('/vehicles', vehiclesRouter);
-// router.use('/city', cityRouter);
-
-// router.get('/', (_req, res) => {
-//   res.redirect('home');
-// });
+router.use('/favorite', favoriteRouter);
 
 module.exports = router;
