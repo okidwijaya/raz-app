@@ -14,6 +14,9 @@ authRouter
     validate.changePassword,
     auth.checkToken,
     authController.changePassword,
-  );
+  )
+  .post('/get-otp', authController.getOtp)
+  .post('/check-otp', authController.checkOtp)
+  .post('/reset-password', authController.resetPassword);
 
 module.exports = authRouter;
