@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 const {getTimeStamp} = require('../helpers/getTimeStamp');
-
+const {sendForgotPass} = require('../helpers/sendOtp');
 const register = (body) => {
   return new Promise((resolve, reject) => {
     const email = body.email;
@@ -123,40 +123,48 @@ const login = (body) => {
   });
 };
 
-const forgotPassword = (body) => {
+const getOtp = (body) => {
   return new Promise((resolve, reject) => {
     const {email} = body;
     const sqlQuery = `SELECT * FROM user WHERE email = ?`;
 
     db.query(sqlQuery, [email], (err, result) => {
-      if (err) return reject({status: 500, err});
+      if (err) {
+        console.log(err);
+        return reject({
+          status: 500,
+          err: {msg: 'Something went wrong', data: null},
+        });
+      }
       if (result.length == 0)
         return reject({
           status: 401,
-          err: {msg: 'Invalid Email'},
+          err: {msg: 'Email is invalid', data: null},
         });
-
-      const otp = Math.ceil(Math.random() * 1000000);
-      console.log('OTP ', otp);
-
+      const name = result[0].name;
+      const otp = Math.ceil(Math.random() * 1000 * 1000);
       const sqlQuery = `UPDATE user SET otp = ? WHERE email = ?`;
+
       db.query(sqlQuery, [otp, email], (err) => {
         if (err)
-          return reject({status: 500, err: {msg: 'Something went wrong'}});
+          return reject({
+            status: 500,
+            err: {msg: 'Something went wrong', data: null},
+          });
+        sendForgotPass(email, {name: name, otp});
         const data = {
           email: email,
         };
-        resolve({status: 200, result: data});
+        resolve({status: 200, result: {msg: 'Please check your email', data}});
       });
     });
   });
 };
 
-const checkOTP = (body) => {
+const checkOtp = (body) => {
   return new Promise((resolve, reject) => {
     const {email, otp} = body;
     const sqlQuery = `SELECT email, otp FROM user WHERE email = ? AND otp = ?`;
-
     db.query(sqlQuery, [email, otp], (err, result) => {
       if (err) return reject({status: 500, err});
       if (result.length === 0)
@@ -164,7 +172,7 @@ const checkOTP = (body) => {
       const data = {
         email: email,
       };
-      resolve({status: 200, result: data});
+      resolve({status: 200, result: {msg: 'OTP is valid', data}});
     });
   });
 };
@@ -175,24 +183,31 @@ const resetPassword = (body) => {
     const sqlQuery = `SELECT * FROM user WHERE email = ? AND otp = ?`;
 
     db.query(sqlQuery, [email, otp], (err) => {
-      if (err) return reject({status: 500, err});
+      if (err)
+        return reject({
+          status: 500,
+          err: {msg: 'Something went wrong', data: null},
+        });
 
-      const sqlUpdatePass = `UPDATE user SET password = ? WHERE email = ? AND otp =?`;
       bcrypt
         .hash(password, 10)
         .then((hashedPassword) => {
+          const sqlUpdatePass = `UPDATE user SET password = ?, otp = null WHERE email = ? AND otp = ?`;
           db.query(sqlUpdatePass, [hashedPassword, email, otp], (err) => {
-            if (err)
-              return reject({status: 500, err: {msg: 'Something went wrong'}});
-            D;
-            const sqlUpdateOTP = `UPDATE user SET otp = null WHERE email = ?`;
-            db.query(sqlUpdateOTP, [email], (err, result) => {
-              if (err)
-                return reject({
-                  status: 500,
-                  err: {msg: 'Something went wrong'},
-                });
-              resolve({status: 201, result});
+            if (err) {
+              return reject({
+                status: 500,
+                err: {msg: 'Something went wrong', data: null},
+              });
+            }
+            return resolve({
+              status: 200,
+              result: {
+                msg: 'Reset password success',
+                data: {
+                  email,
+                },
+              },
             });
           });
         })
@@ -280,8 +295,9 @@ const changePassword = (oldPassword, newPassword, id) => {
 module.exports = {
   register,
   login,
-  forgotPassword,
-  checkOTP,
+  getOtp,
+  checkOtp,
   changePassword,
   logout,
+  resetPassword,
 };
