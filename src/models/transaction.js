@@ -1,20 +1,20 @@
-const db = require("../config/db");
-const mysql = require("mysql");
-const { getTimeStamp } = require("../helpers/getTimeStamp");
+const db = require('../config/db');
+const mysql = require('mysql');
+const {getTimeStamp} = require('../helpers/getTimeStamp');
 
 const userTransaction = (query, userInfo) => {
   return new Promise((resolve, reject) => {
-    const { page, limit, status } = query;
-    let { id } = userInfo;
-    console.log("userinfo", userInfo);
-    const sqlPage = !page || page === "" ? "1" : page;
-    const sqlLimit = !limit || limit === "" ? "15" : limit;
+    const {page, limit, status} = query;
+    let {id} = userInfo;
+    console.log('userinfo', userInfo);
+    const sqlPage = !page || page === '' ? '1' : page;
+    const sqlLimit = !limit || limit === '' ? '15' : limit;
     const offset = (parseInt(sqlPage) - 1) * parseInt(sqlLimit);
-    let deletedAt = "t.deletedAt";
-    let userId = "t.idUser = ";
+    let deletedAt = 't.deletedAt';
+    let userId = 't.idUser = ';
     id = String(id);
     const sqlStatus =
-      !status || status === "" ? "" : `AND t.status = '${status}'`;
+      !status || status === '' ? '' : `AND t.status = '${status}'`;
 
     const prepare = [
       mysql.raw(deletedAt),
@@ -36,13 +36,13 @@ const userTransaction = (query, userInfo) => {
         console.log(err);
         return reject({
           status: 500,
-          err: { msg: "Something went wrong", data: null },
+          err: {msg: 'Something went wrong', data: null},
         });
       }
       const totalData = result[0].count;
       const nextOffset = parseInt(offset) + parseInt(sqlLimit);
-      let nextPage = "?";
-      let prevPage = "?";
+      let nextPage = '?';
+      let prevPage = '?';
       const nPage = nextOffset >= totalData ? null : parseInt(sqlPage) + 1;
       const pPage = sqlPage > 1 ? +sqlPage - 1 : null;
       const totalPage = Math.ceil(totalData / parseInt(sqlLimit));
@@ -50,18 +50,18 @@ const userTransaction = (query, userInfo) => {
         nextPage = null;
       } else {
         const nextCount = parseInt(sqlPage) + 1;
-        nextPage += "page=" + nextCount;
+        nextPage += 'page=' + nextCount;
         if (limit) {
-          nextPage += "&limit=" + limit;
+          nextPage += '&limit=' + limit;
         }
       }
       if (pPage == null) {
         prevPage = null;
       } else {
         const prevCounter = parseInt(sqlPage) - 1;
-        prevPage += "page=" + prevCounter;
+        prevPage += 'page=' + prevCounter;
         if (limit) {
-          prevPage += "&limit=" + limit;
+          prevPage += '&limit=' + limit;
         }
       }
 
@@ -89,13 +89,13 @@ const userTransaction = (query, userInfo) => {
           console.log(err);
           return reject({
             status: 500,
-            err: { msg: "Something went wrong", data: null },
+            err: {msg: 'Something went wrong', data: null},
           });
         }
         return resolve({
           status: 200,
           result: {
-            msg: "List of user transaction.",
+            msg: 'List of user transaction.',
             data: result,
             meta,
           },
@@ -107,13 +107,13 @@ const userTransaction = (query, userInfo) => {
 
 const sellerTransaction = (query) => {
   return new Promise((resolve, reject) => {
-    const { page, limit, status } = query;
-    const sqlPage = !page || page === "" ? "1" : page;
-    const sqlLimit = !limit || limit === "" ? "15" : limit;
+    const {page, limit, status} = query;
+    const sqlPage = !page || page === '' ? '1' : page;
+    const sqlLimit = !limit || limit === '' ? '15' : limit;
     const offset = (parseInt(sqlPage) - 1) * parseInt(sqlLimit);
-    let deletedAt = "t.deletedAt";
+    let deletedAt = 't.deletedAt';
     const sqlStatus =
-      !status || status === "" ? "" : `AND t.status = '${status}'`;
+      !status || status === '' ? '' : `AND t.status = '${status}'`;
 
     const prepare = [
       mysql.raw(deletedAt),
@@ -130,16 +130,16 @@ const sellerTransaction = (query) => {
 
     db.query(sqlCount, prepare, (err, result) => {
       if (err) {
-        console.log("err inside count", err);
+        console.log('err inside count', err);
         return reject({
           status: 500,
-          err: { msg: "Something went wrong", data: null },
+          err: {msg: 'Something went wrong', data: null},
         });
       }
       const totalData = result[0].count;
       const nextOffset = parseInt(offset) + parseInt(sqlLimit);
-      let nextPage = "?";
-      let prevPage = "?";
+      let nextPage = '?';
+      let prevPage = '?';
       const nPage = nextOffset >= totalData ? null : parseInt(sqlPage) + 1;
       const pPage = sqlPage > 1 ? +sqlPage - 1 : null;
       const totalPage = Math.ceil(totalData / parseInt(sqlLimit));
@@ -147,18 +147,18 @@ const sellerTransaction = (query) => {
         nextPage = null;
       } else {
         const nextCount = parseInt(sqlPage) + 1;
-        nextPage += "page=" + nextCount;
+        nextPage += 'page=' + nextCount;
         if (limit) {
-          nextPage += "&limit=" + limit;
+          nextPage += '&limit=' + limit;
         }
       }
       if (pPage == null) {
         prevPage = null;
       } else {
         const prevCounter = parseInt(sqlPage) - 1;
-        prevPage += "page=" + prevCounter;
+        prevPage += 'page=' + prevCounter;
         if (limit) {
-          prevPage += "&limit=" + limit;
+          prevPage += '&limit=' + limit;
         }
       }
 
@@ -177,22 +177,23 @@ const sellerTransaction = (query) => {
               FROM transaction t LEFT JOIN transaction_product tp ON tp.id = 
               (SELECT idTransaction FROM transaction_product WHERE transaction_product.idTransaction = t.id LIMIT 1)
               LEFT JOIN product p ON p.id = tp.idProduct
+              LEFT JOIN user u ON u.id = p.idUser
               WHERE ? IS NULL ?
               ORDER BY t.createdAt DESC
               LIMIT ? OFFSET ?`;
 
       db.query(sqlSelect, prepare, (err, result) => {
         if (err) {
-          console.log("err inside select", err);
+          console.log('err inside select', err);
           return reject({
             status: 500,
-            err: { msg: "Something went wrong", data: null },
+            err: {msg: 'Something went wrong', data: null},
           });
         }
         return resolve({
           status: 200,
           result: {
-            msg: "List of all transaction.",
+            msg: 'List of all transaction.',
             data: result,
             meta,
           },
@@ -204,10 +205,10 @@ const sellerTransaction = (query) => {
 
 const addTransaction = (req) => {
   return new Promise((resolve, reject) => {
-    const { body, userInfo } = req;
+    const {body, userInfo} = req;
     const idUser = userInfo.id;
     const createdAt = getTimeStamp();
-    const { totalPrice, shippingMethod, paymentMethod, status, productList } =
+    const {totalPrice, shippingMethod, paymentMethod, status, productList} =
       body;
 
     // let newProductList = [];
@@ -243,13 +244,13 @@ const addTransaction = (req) => {
       if (err) {
         return reject({
           status: 500,
-          err: { msg: "Something went wrong", data: null },
+          err: {msg: 'Something went wrong', data: null},
         });
       }
 
       const productListWithPrice = productList.map((element, idx) => {
         let price = result[idx].price;
-        return (element = { ...element, price });
+        return (element = {...element, price});
       });
       // console.log("list", newProductList);
 
@@ -258,7 +259,7 @@ const addTransaction = (req) => {
         if (err) {
           return reject({
             status: 500,
-            err: { msg: "Something went wrong", data: null },
+            err: {msg: 'Something went wrong', data: null},
           });
         }
 
@@ -268,12 +269,12 @@ const addTransaction = (req) => {
         VALUES ? `;
 
         const finalProductList = productListWithPrice.map((element) => {
-          return (element = { ...element, idTransaction });
+          return (element = {...element, idTransaction});
         });
 
         // console.log("finalProductList", finalProductList);
 
-        let values = "";
+        let values = '';
         finalProductList.forEach((element, idx) => {
           if (idx === finalProductList.length - 1) {
             values += `(${idTransaction}, ${element.idProduct}, ${
@@ -291,17 +292,17 @@ const addTransaction = (req) => {
         //
         db.query(sqlAddList, [mysql.raw(values)], (err) => {
           if (err) {
-            console.log("err inside addlist", err);
+            console.log('err inside addlist', err);
             return reject({
               status: 500,
-              err: { msg: "Something went wrong", data: null },
+              err: {msg: 'Something went wrong', data: null},
             });
           }
 
           return resolve({
             status: 200,
             result: {
-              msg: "Add transaction success.",
+              msg: 'Add transaction success.',
               data: {
                 idTransaction,
                 ...bodyTransaction,
@@ -319,19 +320,19 @@ const addTransaction = (req) => {
 const updateTransaction = (body, id) => {
   return new Promise((resolve, reject) => {
     const updatedAt = getTimeStamp();
-    const newBody = { ...body, updatedAt };
+    const newBody = {...body, updatedAt};
     const sqlUpdate = `UPDATE transaction SET ? WHERE id = ?`;
     db.query(sqlUpdate, [newBody, id], (err) => {
       if (err) {
         console.log(err);
         return reject({
           status: 500,
-          err: { msg: "Something went wrong", data: null },
+          err: {msg: 'Something went wrong', data: null},
         });
       }
       return resolve({
         status: 200,
-        result: { msg: "Update success", data: newBody },
+        result: {msg: 'Update success', data: newBody},
       });
     });
   });
@@ -352,7 +353,7 @@ const detailTransaction = (idTransaction) => {
         console.log(err);
         return reject({
           status: 500,
-          err: { msg: "Something went wrong", data: null },
+          err: {msg: 'Something went wrong', data: null},
         });
       }
 
@@ -363,7 +364,7 @@ const detailTransaction = (idTransaction) => {
           console.log(err);
           return reject({
             status: 500,
-            err: { msg: "Something went wrong", data: null },
+            err: {msg: 'Something went wrong', data: null},
           });
         }
 
@@ -373,7 +374,7 @@ const detailTransaction = (idTransaction) => {
           status: 200,
           result: {
             msg: `Detail Transaction, id=${idTransaction}`,
-            data: { ...data, products: result },
+            data: {...data, products: result},
           },
         });
       });
@@ -393,7 +394,7 @@ const deleteTransaction = (id, idUser) => {
           console.log(err);
           return reject({
             status: 500,
-            err: { msg: "Something went wrong", data: null },
+            err: {msg: 'Something went wrong', data: null},
           });
         }
         return resolve({
