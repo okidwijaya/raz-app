@@ -1,26 +1,27 @@
-const transactionModel = require("../models/transaction");
-const resHelper = require("../helpers/sendResponse");
+const transactionModel = require('../models/transaction');
+const resHelper = require('../helpers/sendResponse');
 
 const userTransaction = (req, res) => {
-  const { query, userInfo } = req;
+  const {query, userInfo} = req;
   transactionModel
     .userTransaction(query, userInfo)
-    .then(({ status, result }) => {
+    .then(({status, result}) => {
       return resHelper.success(res, status, result);
     })
-    .catch(({ status, err }) => {
+    .catch(({status, err}) => {
       return resHelper.error(res, status, err);
     });
 };
 
 const sellerTransaction = (req, res) => {
-  const { query} = req;
+  const {query, userInfo} = req;
+  const idUser = userInfo.id;
   transactionModel
-    .sellerTransaction(query)
-    .then(({ status, result }) => {
+    .sellerTransaction(query, idUser)
+    .then(({status, result}) => {
       return resHelper.success(res, status, result);
     })
-    .catch(({ status, err }) => {
+    .catch(({status, err}) => {
       return resHelper.error(res, status, err);
     });
 };
@@ -28,47 +29,47 @@ const sellerTransaction = (req, res) => {
 const addTransaction = (req, res) => {
   transactionModel
     .addTransaction(req)
-    .then(({ status, result }) => {
+    .then(({status, result}) => {
       return resHelper.success(res, status, result);
     })
-    .catch(({ status, err }) => {
+    .catch(({status, err}) => {
       return resHelper.error(res, status, err);
     });
 };
 
 const updateTransaction = (req, res) => {
-  const { body, params } = req;
+  const {body, params} = req;
   transactionModel
     .updateTransaction(body, params.id)
-    .then(({ status, result }) => {
+    .then(({status, result}) => {
       return resHelper.success(res, status, result);
     })
-    .catch(({ status, err }) => {
+    .catch(({status, err}) => {
       resHelper.error(res, status, err);
     });
 };
 
 const detailTransaction = (req, res) => {
-  const { params } = req;
+  const {params} = req;
   transactionModel
     .detailTransaction(params.id)
-    .then(({ status, result }) => {
+    .then(({status, result}) => {
       return resHelper.success(res, status, result);
     })
-    .catch(({ status, err }) => {
+    .catch(({status, err}) => {
       return resHelper.error(res, status, err);
     });
 };
 
 const deleteTransaction = (req, res) => {
-  const { params, userInfo } = req;
+  const {params, userInfo} = req;
   const idUser = userInfo.id;
   transactionModel
     .deleteTransaction(params.id, idUser)
-    .then(({ status, result }) => {
+    .then(({status, result}) => {
       return resHelper.success(res, status, result);
     })
-    .catch(({ status, err }) => {
+    .catch(({status, err}) => {
       return resHelper.error(res, status, err);
     });
 };
