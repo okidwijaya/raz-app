@@ -10,14 +10,14 @@ const userTransaction = (query, userInfo) => {
     const sqlPage = !page || page === '' ? '1' : page;
     const sqlLimit = !limit || limit === '' ? '15' : limit;
     const offset = (parseInt(sqlPage) - 1) * parseInt(sqlLimit);
-    let deletedAt = 't.deletedAt';
+    // let deletedAt = 't.deletedAt';
     let userId = 't.idUser = ';
     id = String(id);
     const sqlStatus =
       !status || status === '' ? '' : `AND t.status = '${status}'`;
 
     const prepare = [
-      mysql.raw(deletedAt),
+      // mysql.raw(deletedAt),
       mysql.raw(userId),
       mysql.raw(id),
       mysql.raw(sqlStatus),
@@ -29,7 +29,7 @@ const userTransaction = (query, userInfo) => {
     FROM transaction t LEFT JOIN transaction_product tp ON tp.id = 
     (SELECT idTransaction FROM transaction_product WHERE transaction_product.idTransaction = t.id LIMIT 1)
     LEFT JOIN product p ON p.id = tp.idProduct
-    WHERE ? IS NULL AND ? ? ?`;
+    WHERE t.deletedAt IS NULL AND ? ? ?`;
 
     db.query(sqlCount, prepare, (err, result) => {
       if (err) {
@@ -80,7 +80,7 @@ const userTransaction = (query, userInfo) => {
             FROM transaction t LEFT JOIN transaction_product tp ON tp.id = 
             (SELECT idTransaction FROM transaction_product WHERE transaction_product.idTransaction = t.id LIMIT 1)
             LEFT JOIN product p ON p.id = tp.idProduct
-            WHERE ? IS NULL AND ? ? ?
+            WHERE t.deletedAt IS NULL AND ? ? ?
             ORDER BY t.createdAt DESC
             LIMIT ? OFFSET ?`;
 
@@ -105,18 +105,19 @@ const userTransaction = (query, userInfo) => {
   });
 };
 
-const sellerTransaction = (query) => {
+const sellerTransaction = (query, idUser) => {
   return new Promise((resolve, reject) => {
+    // console.log('query', query);
+    console.log('idUser', idUser);
     const {page, limit, status} = query;
     const sqlPage = !page || page === '' ? '1' : page;
     const sqlLimit = !limit || limit === '' ? '15' : limit;
     const offset = (parseInt(sqlPage) - 1) * parseInt(sqlLimit);
-    let deletedAt = 't.deletedAt';
     const sqlStatus =
       !status || status === '' ? '' : `AND t.status = '${status}'`;
 
     const prepare = [
-      mysql.raw(deletedAt),
+      idUser,
       mysql.raw(sqlStatus),
       mysql.raw(sqlLimit),
       offset,
@@ -126,7 +127,8 @@ const sellerTransaction = (query) => {
     FROM transaction t LEFT JOIN transaction_product tp ON tp.id = 
     (SELECT idTransaction FROM transaction_product WHERE transaction_product.idTransaction = t.id LIMIT 1)
     LEFT JOIN product p ON p.id = tp.idProduct
-    WHERE ? IS NULL ?`;
+    LEFT JOIN user u ON u.id = p.idUser
+    WHERE t.deletedAt IS NULL AND p.idUser = ? ?`;
 
     db.query(sqlCount, prepare, (err, result) => {
       if (err) {
@@ -178,7 +180,7 @@ const sellerTransaction = (query) => {
               (SELECT idTransaction FROM transaction_product WHERE transaction_product.idTransaction = t.id LIMIT 1)
               LEFT JOIN product p ON p.id = tp.idProduct
               LEFT JOIN user u ON u.id = p.idUser
-              WHERE ? IS NULL ?
+              WHERE t.deletedAt IS NULL AND p.idUser = ? ?
               ORDER BY t.createdAt DESC
               LIMIT ? OFFSET ?`;
 
