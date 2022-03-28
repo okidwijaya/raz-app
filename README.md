@@ -86,14 +86,6 @@ APP_NAME = # default App Name
 
 [Heroku](https://raz-furniture-backend.herokuapp.com)
 
-## Screenshot
-
-<div align="center">
-<img width="500" src="https://drive.google.com/uc?export=view&id=1JGGu6ursmkqwlLVFCvNh-Bi3dR34p5Qy" alt="Home page">
-
-<img width="300" src="https://drive.google.com/uc?export=view&id=1utTXOmKdl3c54jpnxFMIDyPr5ctcAiDW" alt="page">
-</div>
-
 ## Authors
 
 - [@okidwijaya]( https://github.com/okidwijaya)
