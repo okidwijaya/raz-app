@@ -91,7 +91,7 @@ APP_NAME = # default App Name
 <div align="center">
 <img width="500" src="https://drive.google.com/uc?export=view&id=1JGGu6ursmkqwlLVFCvNh-Bi3dR34p5Qy" alt="Home page">
 
-<img width="300" src="https://drive.google.com/file/d/1utTXOmKdl3c54jpnxFMIDyPr5ctcAiDW/view?usp=sharing" alt="page">
+<img width="300" src="https://drive.google.com/uc?export=view&id=1utTXOmKdl3c54jpnxFMIDyPr5ctcAiDW" alt="page">
 </div>
 
 ## Authors
