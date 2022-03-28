@@ -50,30 +50,25 @@ $ npm install
 
 ## Features
 
--Auth
-
-    -Sign in
-    -Sign up
-    -Forgot password
--Product
-
-    -Add
-    -Edit
-    -Delete
-    -Update
- -Profile
- 
-    -Edit password
-    -Update profile
- -Order
- 
-    -Create transaction
-    -Edit transaction
+- Auth
+    - Sign in
+    - Sign up
+    - Forgot password
+- Product
+    - Add
+    - Edit
+    - Delete
+    - Update
+ - Profile
+    - Edit password
+    - Update profile
+ - Order
+    - Create transaction
+    - Edit transaction
     -Delete history
- -Favorite
- 
-    -Add
-    -Remove
+ - Favorite
+    - Add
+    - Remove
 
 ## API Reference Example
 
