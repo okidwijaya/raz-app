@@ -3,7 +3,7 @@
 
 Codebase containing CRUD and auth to provide client side for our [project](##Related) 
 
-![Raz](https://drive.google.com/uc?export=view&id=1FcgncPq7HGnaEXO0tmrE6r2ZykxhtSF)
+![Raz](https://drive.google.com/uc?export=view&id=1FcgncPq7HGnaEXO0tmrE6r2ZykxhtSF-)
 
 [![express](https://img.shields.io/npm/v/react-router-dom?label=express)](https://www.npmjs.com/package/express)
 [![bcrypt](https://img.shields.io/badge/bcrypt-5.0.1-blue)](https://www.npmjs.com/package/bcrypt)
@@ -89,7 +89,7 @@ APP_NAME = # default App Name
 ## Screenshot
 
 <div align="center">
-<img width="500" src="https://drive.google.com/file/d/1JGGu6ursmkqwlLVFCvNh-Bi3dR34p5Qy/view?usp=sharing" alt="Home page">
+<img width="500" src="https://drive.google.com/uc?export=view&id=1JGGu6ursmkqwlLVFCvNh-Bi3dR34p5Qy" alt="Home page">
 
 <img width="300" src="https://drive.google.com/file/d/1utTXOmKdl3c54jpnxFMIDyPr5ctcAiDW/view?usp=sharing" alt="page">
 </div>
