@@ -13,6 +13,26 @@ Codebase containing CRUD and auth to provide client side for our [project](##Rel
 [![cors](https://img.shields.io/badge/cors-2.8.5-blue)](https://www.npmjs.com/package/cors)
 
 # Installation
+## 1. Clone this repository
+
+Clone this repository by run the following code:
+
+```
+$ git clone https://github.com/okidwijaya/raz-app
+```
+## 2. Go to directory
+
+```
+$ cd raz-app
+```
+
+## 3. Install dependency packages
+
+Install dependency packages by run the following code inside project folder:
+
+```
+$ npm install
+```
 
 ## Application Structure
 
@@ -30,13 +50,25 @@ Codebase containing CRUD and auth to provide client side for our [project](##Rel
 
 ## Features
 
-- CRUD data transaction, user and product
-    - create transaction an
-    - create and update user
-    - forgot password
-    - update password
-    - get product list
-    - manage product -- update and delete
+-Auth
+    -Sign in
+    -Sign up
+    -Forgot password
+-Product
+    -Add
+    -Edit
+    -Delete
+    -Update
+ -Profile
+    -Edit password
+    -Update profile
+ -Order
+    -Create transaction
+    -Edit transaction
+    -Delete history
+ -Favorite
+    -Add
+    -Remove
 
 ## API Reference Example
 
