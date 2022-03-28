@@ -1,19 +1,18 @@
-> ### Example Node (Express + mySql) codebase containing CRUD and auth to provide client side for our project https://github.com/anshoriacc/raz-webapp-nextjs
 
+# Raz App Backend
 
-# Getting started
+Codebase containing CRUD and auth to provide client side for our [project](##Related) 
 
-To get the Node server running locally:
+![Raz](https://drive.google.com/uc?export=view&id=1pUbQR9Jr-B1owaOV3qdYJUWHwH67stYc)
 
-- Clone this repo
-- `npm install` to install all required dependencies
-- `npm run dev` to start the local server
+[![express](https://img.shields.io/npm/v/react-router-dom?label=express)](https://www.npmjs.com/package/express)
+[![bcrypt](https://img.shields.io/badge/bcrypt-5.0.1-blue)](https://www.npmjs.com/package/bcrypt)
+[![nodemailer](https://img.shields.io/badge/nodemailer-6.7.3-blue)](https://www.npmjs.com/package/nodemailer)
+[![jsonwebtoken](https://img.shields.io/badge/jsonwebtoken-8.5.1-blue)](https://www.npmjs.com/package/jsonwebtoken)
+[![multer](https://img.shields.io/badge/multer-1.4.4-blue)](https://www.npmjs.com/package/multer)
+[![cors](https://img.shields.io/badge/cors-2.8.5-blue)](https://www.npmjs.com/package/cors)
 
-
-## Dependencies
-
-- [expressjs](https://github.com/expressjs/express) - The server for handling and routing HTTP requests
-- [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) - For generating JWTs used by authentication
+# Installation
 
 ## Application Structure
 
@@ -38,11 +37,6 @@ To get the Node server running locally:
     - update password
     - get product list
     - manage product -- update and delete
-
-## Authentication
-
-Requests are authenticated using the `Authorization` header with a valid JWT. We define two express middlewares in `routes/auth.js` that can be used to authenticate requests. The `required` middleware configures the `express-jwt` middleware using our application's secret and will return a 401 status code if the request cannot be authenticated. The payload of the JWT can then be accessed from `req.payload` in the endpoint. The `optional` middleware configures the `express-jwt` in the same way as `required`, but will *not* return a 401 status code if the request cannot be authenticated.
-
 
 ## API Reference Example
 
@@ -86,23 +80,30 @@ Requests are authenticated using the `Authorization` header with a valid JWT. We
 APP_NAME = # default App Name
 
 
-# JWT
-JWT_ACCESS_TOKEN_EXPIRATION_MINUTES = # default 240 minutes
-
-
 # Configuration DB
-HOST = "localhost"
-USER = "root"
-PASS = " "
-DB = "your db"
 
-SECRET_KEY="Your secret key"
-ISSUER="Your issuer"
+## Deploy
 
+[Heroku](https://raz-furniture-backend.herokuapp.com)
+
+## Screenshot
+
+<div align="center">
+<img width="500" src="https://drive.google.com/file/d/1JGGu6ursmkqwlLVFCvNh-Bi3dR34p5Qy/view?usp=sharing" alt="Home page">
+
+<img width="300" src="https://drive.google.com/file/d/1utTXOmKdl3c54jpnxFMIDyPr5ctcAiDW/view?usp=sharing" alt="page">
+</div>
 
 ## Authors
 
 - [@okidwijaya]( https://github.com/okidwijaya)
 - [@anshoriacc]( https://github.com/anshoriacc)
-- [@ahmadFauxan]( https://github.com/special-snowflake)
-- [@fajarpratama](https://github.com/ikehikeh151   )
+- [@ahmadFauzan]( https://github.com/special-snowflake)
+- [@fajarpratama](https://github.com/ikehikeh151)
+
+
+## Related
+
+Here are some related projects
+
+[click here - README](https://github.com/anshoriacc/raz-webapp-nextjs)
